@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "company": "테크노베이션",
+    "role": "백엔드 엔지니어",
+    "selected_jobs": [
+      "jd-backend-001"
+    ],
+    "target_date": "2026-09-15",
+    "days_remaining": 43,
+    "source_coverage": 0.75,
+    "missing_sources": [
+      "기술블로그",
+      "인재상"
+    ],
+    "reliability": "정상"
+  },
+  "summary_counts": {
+    "충족": 1,
+    "인접": 1,
+    "미보유": 1
+  },
+  "summary_line": "",
+  "track1": [
+    {
+      "comp_id": "req-be-06",
+      "name": "Kubernetes 클러스터 운영 경험",
+      "track": "내세울것",
+      "state": "충족",
+      "required_level": "실무운영",
+      "my_level": "설계주도",
+      "priority": null,
+      "body": "",
+      "evidence": [
+        {
+          "source_name": "포트폴리오",
+          "url": null,
+          "quote": "Kubernetes 클러스터 운영 및 배포 자동화",
+          "collected_at": "2026-07-15"
+        }
+      ]
+    }
+  ],
+  "track2": [
+    {
+      "comp_id": "req-be-02",
+      "name": "RESTful API 및 gRPC API 설계 경험",
+      "track": "채울것",
+      "state": "인접",
+      "required_level": "실무운영",
+      "my_level": "써봄",
+      "priority": 1,
+      "body": "",
+      "evidence": [
+        {
+          "source_name": "포트폴리오",
+          "url": null,
+          "quote": "RESTful API의 리소스·엔드포인트를 직접 설계한 경험이 있다",
+          "collected_at": "2026-07-15"
+        }
+      ]
+    }
+  ],
+  "track3": [
+    {
+      "comp_id": "req-be-07",
+      "name": "AWS 환경에서 서비스를 운영한 경험",
+      "track": "포기할것",
+      "state": "미보유",
+      "required_level": "실무운영",
+      "my_level": null,
+      "priority": null,
+      "body": "",
+      "evidence": []
+    }
+  ],
+  "culture_fit": null,
+  "gaps": [
+    "기술블로그·인재상 미수집으로 컬처핏 세부 판단 보류"
+  ]
+}

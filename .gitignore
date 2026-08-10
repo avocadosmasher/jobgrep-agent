@@ -1,0 +1,23 @@
+# venv / uv
+.venv/
+__pycache__/
+*.pyc
+
+# secrets
+.env
+
+# vector index
+*.faiss
+
+# LangGraph 체크포인트 (T10)
+.jobprep/
+
+# caches / build
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# OS / editor
+.DS_Store

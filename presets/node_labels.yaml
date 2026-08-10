@@ -1,0 +1,124 @@
+# 진행 표시 라벨 — 내부 노드/도구 이름을 화면에 노출하지 않기 위한 매핑 (T13 불변식).
+#
+# 이 파일이 코드가 아니라 프리셋인 이유: 화면 문구는 노드가 하나 늘 때마다 바뀌는데,
+# 그때마다 `app/progress.py`를 고치면 "표시 규칙"과 "표시 문구"가 한 파일에서 뒤섞인다.
+# 여기 없는 노드가 와도 진행 표시는 깨지지 않는다 — `fallback` 규칙으로 떨어진다.
+#
+# 스키마
+#   title            : st.status 컨테이너의 제목 (실행 중)
+#   paused_title     : HITL 중단 국면의 제목
+#   complete_title   : 완료 국면의 제목
+#   failed_title     : 실행이 예외로 끊긴 국면의 제목
+#   fallback         : 매핑에 없는 노드에 붙일 문구 (내부 이름은 끝까지 노출하지 않는다)
+#   nodes.<노드명>
+#     label          : 사용자 언어 문구
+#     counts[]       : 노드가 돌려준 부분 갱신에서 뽑아 괄호로 붙일 숫자
+#       key          : GraphState 필드명 (contracts/state.py)
+#       unit         : 숫자 뒤에 붙는 말 — "17개", "3건 확인 필요"
+#       hide_zero    : 0이면 아예 표시하지 않는다 (기본 false)
+#     repeats_while  : 이 필드가 남아 있으면 노드가 **아직 안 끝난 것**으로 본다.
+#                      자기 루프(델타 인터뷰)를 ✅로 조기 승격시키지 않기 위한 장치이며,
+#                      새 HITL 노드(T19 H1 · T22 H4)는 코드가 아니라 이 한 줄로 붙는다.
+#   tools.<도구명>   : 수집 ReAct(T18)의 내부 tool call 서브 라인 문구
+
+title: 회사 분석 진행 중
+paused_title: 회사 분석 — 답변 대기
+complete_title: 회사 분석 완료
+failed_title: 회사 분석 중단됨
+fallback: 처리 중
+
+nodes:
+  # --- P0 척추 (T08) ---------------------------------------------------------
+  ingest_pasted_jd:
+    label: JD 본문 수집
+    counts:
+      - key: source_docs
+        unit: 건
+
+  extract:
+    label: 요구 역량 추출
+    counts:
+      - key: required
+        unit: 개
+
+  # --- 공고 발견 · 선택 H1 (T19) ------------------------------------------------
+  # 대화형 배선에만 있다. 사용자가 JD를 직접 준 경우 둘 다 조용히 건너뛴다.
+  discover_jobs:
+    label: 공고 발견
+    counts:
+      - key: discovered_jobs
+        unit: 건
+        hide_zero: true   # 붙여넣기 경로는 발견을 안 한다 — 0을 띄우면 실패로 읽힌다
+
+  select_job:
+    label: 분석할 공고 선택
+    counts:
+      - key: selected_job_ids
+        unit: 건 선택
+        hide_zero: true
+
+  # --- 수집 서브에이전트 (T18) ------------------------------------------------
+  # 내부 tool call은 아래 `tools:` 문구로 이 줄 밑에 서브 라인으로 붙는다.
+  collect:
+    label: 회사 정보 수집
+    counts:
+      - key: source_docs
+        unit: 건
+
+  # --- 후보쌍 검색 (T14b) -----------------------------------------------------
+  retrieve:
+    label: 보유 역량과 후보 매칭
+    counts:
+      - key: candidate_pairs
+        unit: 쌍
+        hide_zero: true   # 프로필이 없으면 후보쌍이 안 나온다 — 0을 띄우면 실패로 읽힌다
+
+  decompose:
+    label: 판정 기준 분해
+    counts:
+      - key: criteria
+        unit: 개
+
+  verify:
+    label: 내 프로필과 대조
+    counts:
+      - key: verdicts
+        unit: 건 판정
+      - key: pending_questions
+        unit: 건 확인 필요
+        hide_zero: true
+
+  aggregate:
+    label: 역량별 집계
+    counts:
+      - key: match_results
+        unit: 개 역량
+
+  build_brief:
+    label: 3트랙 전략 브리프 작성
+
+  fill_slots:
+    label: 총평·전략 문장 채우기
+
+  # --- HITL (T11) ------------------------------------------------------------
+  delta_interview:
+    label: 델타 인터뷰
+    repeats_while: pending_questions
+    counts:
+      - key: interview_answers
+        unit: 건 답변
+
+  # --- 아직 배선되지 않은 노드 ------------------------------------------------
+  # 라벨을 미리 둔다. 없어도 fallback으로 동작하지만, 그러면 해당 태스크가
+  # 이 파일을 고쳐야 하고 그건 T13 소유 파일을 건드리는 일이 된다(R2).
+  parse_resume:
+    label: 이력서 해석
+  build_profile:
+    label: 역량 프로필 작성
+
+tools:
+  fetch_jd_body: 공고 본문 가져오기
+  fetch_tech_blog: 기술 블로그 훑기
+  get_company_values: 인재상·가치 확인
+  discover_jobs: 공고 검색
+  ocr_resume: 이미지에서 글자 인식

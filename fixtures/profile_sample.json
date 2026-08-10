@@ -1,0 +1,143 @@
+{
+  "competencies": [
+    {
+      "comp_id": "pf-01",
+      "category": "D1_SW기반",
+      "name": "Python 기반 프로덕션 서비스 개발 3년",
+      "importance": "필수",
+      "level": "실무운영",
+      "evidence": [
+        {
+          "source_name": "이력서",
+          "url": null,
+          "quote": "Python 기반 프로덕션 서비스 개발 3년",
+          "collected_at": "2026-07-15"
+        }
+      ]
+    },
+    {
+      "comp_id": "pf-02",
+      "category": "D1_SW기반",
+      "name": "pytest 기반 단위 테스트 및 커버리지 80% 이상 유지",
+      "importance": "필수",
+      "level": "실무운영",
+      "evidence": [
+        {
+          "source_name": "이력서",
+          "url": null,
+          "quote": "pytest 기반 단위 테스트 및 커버리지 80% 이상 유지",
+          "collected_at": "2026-07-15"
+        }
+      ]
+    },
+    {
+      "comp_id": "pf-03",
+      "category": "D2_백엔드",
+      "name": "FastAPI로 RESTful API 설계 및 구현",
+      "importance": "필수",
+      "level": "실무운영",
+      "evidence": [
+        {
+          "source_name": "이력서",
+          "url": null,
+          "quote": "FastAPI로 RESTful API 설계 및 구현",
+          "collected_at": "2026-07-15"
+        }
+      ]
+    },
+    {
+      "comp_id": "pf-04",
+      "category": "D2_백엔드",
+      "name": "PostgreSQL 쿼리 튜닝 및 인덱스 설계",
+      "importance": "필수",
+      "level": "써봄",
+      "evidence": [
+        {
+          "source_name": "이력서",
+          "url": null,
+          "quote": "PostgreSQL 쿼리 튜닝 및 인덱스 설계",
+          "collected_at": "2026-07-15"
+        }
+      ]
+    },
+    {
+      "comp_id": "pf-05",
+      "category": "D3_클라우드",
+      "name": "AWS EC2·RDS 기반 서비스 운영",
+      "importance": "필수",
+      "level": "써봄",
+      "evidence": [
+        {
+          "source_name": "이력서",
+          "url": null,
+          "quote": "AWS EC2·RDS 기반 서비스 운영",
+          "collected_at": "2026-07-15"
+        }
+      ]
+    },
+    {
+      "comp_id": "pf-06",
+      "category": "D3_클라우드",
+      "name": "Terraform으로 인프라 프로비저닝 자동화",
+      "importance": "필수",
+      "level": "써봄",
+      "evidence": [
+        {
+          "source_name": "이력서",
+          "url": null,
+          "quote": "Terraform으로 인프라 프로비저닝 자동화",
+          "collected_at": "2026-07-15"
+        }
+      ]
+    },
+    {
+      "comp_id": "pf-07",
+      "category": "D4_오케스트레이션",
+      "name": "Docker 기반 컨테이너 이미지 빌드 및 배포",
+      "importance": "필수",
+      "level": "실무운영",
+      "evidence": [
+        {
+          "source_name": "이력서",
+          "url": null,
+          "quote": "Docker 기반 컨테이너 이미지 빌드 및 배포",
+          "collected_at": "2026-07-15"
+        }
+      ]
+    },
+    {
+      "comp_id": "pf-08",
+      "category": "D4_오케스트레이션",
+      "name": "Kubernetes 클러스터 운영 및 배포 자동화",
+      "importance": "필수",
+      "level": "설계주도",
+      "evidence": [
+        {
+          "source_name": "이력서",
+          "url": null,
+          "quote": "Kubernetes 클러스터 운영 및 배포 자동화",
+          "collected_at": "2026-07-15"
+        }
+      ]
+    }
+  ],
+  "level_coordinates": {
+    "pf-01": "실무운영",
+    "pf-02": "실무운영",
+    "pf-03": "실무운영",
+    "pf-04": "써봄",
+    "pf-05": "써봄",
+    "pf-06": "써봄",
+    "pf-07": "실무운영",
+    "pf-08": "설계주도"
+  },
+  "coverage": {
+    "D1_SW기반": 0.9,
+    "D2_백엔드": 0.7,
+    "D3_클라우드": 0.6,
+    "D4_오케스트레이션": 0.8,
+    "D5_AI인프라": 0.0,
+    "C_인재상컬처핏": 0.2
+  },
+  "built_at": "2026-07-15"
+}

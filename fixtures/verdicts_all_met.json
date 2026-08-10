@@ -1,0 +1,210 @@
+[
+  {
+    "criterion_id": "cr-be-06-01",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 '프로덕션 환경에서 Kubernetes 클러스터를 직접 운영한 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "프로덕션 환경에서 Kubernetes 클러스터를 직접 운영한 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  },
+  {
+    "criterion_id": "cr-be-06-02",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 '파드·서비스 장애 발생 시 원인 분석과 롤백 조치를 수행한 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "파드·서비스 장애 발생 시 원인 분석과 롤백 조치를 수행한 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  },
+  {
+    "criterion_id": "cr-be-06-03",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 'Deployment·Service 등 Kubernetes manifest를 직접 작성한 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "Deployment·Service 등 Kubernetes manifest를 직접 작성한 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  },
+  {
+    "criterion_id": "cr-be-06-04",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 '100개 이상의 파드 규모 클러스터를 운영해본 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "100개 이상의 파드 규모 클러스터를 운영해본 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  },
+  {
+    "criterion_id": "cr-be-02-01",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 'RESTful API의 리소스·엔드포인트를 직접 설계한 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "RESTful API의 리소스·엔드포인트를 직접 설계한 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  },
+  {
+    "criterion_id": "cr-be-02-02",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 'gRPC 서비스의 protobuf 스키마를 설계·작성한 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "gRPC 서비스의 protobuf 스키마를 설계·작성한 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  },
+  {
+    "criterion_id": "cr-be-02-03",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 'API 버저닝 전략을 수립하고 적용한 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "API 버저닝 전략을 수립하고 적용한 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  },
+  {
+    "criterion_id": "cr-be-02-04",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 '외부 팀이 사용하는 API의 문서화(OpenAPI 등)를 작성한 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "외부 팀이 사용하는 API의 문서화(OpenAPI 등)를 작성한 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  },
+  {
+    "criterion_id": "cr-be-07-01",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 'EC2·ECS 등 AWS 컴퓨트 자원을 직접 프로비저닝하고 운영한 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "EC2·ECS 등 AWS 컴퓨트 자원을 직접 프로비저닝하고 운영한 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  },
+  {
+    "criterion_id": "cr-be-07-02",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 'AWS IAM 정책을 설계해 접근 권한을 관리한 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "AWS IAM 정책을 설계해 접근 권한을 관리한 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  },
+  {
+    "criterion_id": "cr-be-07-03",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 'VPC·로드밸런서 등 네트워크 구성을 직접 설계한 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "VPC·로드밸런서 등 네트워크 구성을 직접 설계한 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  },
+  {
+    "criterion_id": "cr-be-07-04",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 'AWS 비용 모니터링 및 최적화를 수행한 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "AWS 비용 모니터링 및 최적화를 수행한 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  },
+  {
+    "criterion_id": "cr-ai-02-01",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 'vLLM 또는 Triton으로 대규모 언어모델 서빙 서버를 구축한 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "vLLM 또는 Triton으로 대규모 언어모델 서빙 서버를 구축한 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  },
+  {
+    "criterion_id": "cr-ai-02-02",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 '서빙 중인 모델의 추론 지연시간을 프로파일링하고 개선한 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "서빙 중인 모델의 추론 지연시간을 프로파일링하고 개선한 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  },
+  {
+    "criterion_id": "cr-ai-02-03",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 '배치·스트리밍 등 서빙 방식별 트래픽 특성에 맞춘 설정을 튜닝한 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "배치·스트리밍 등 서빙 방식별 트래픽 특성에 맞춘 설정을 튜닝한 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  },
+  {
+    "criterion_id": "cr-ai-02-04",
+    "state": "충족",
+    "rationale": "이력서·포트폴리오에 '다중 GPU 환경에서 모델 서빙을 분산 배치한 경험이 있다'에 해당하는 근거가 명시되어 있다.",
+    "evidence": [
+      {
+        "source_name": "포트폴리오",
+        "url": null,
+        "quote": "다중 GPU 환경에서 모델 서빙을 분산 배치한 경험이 있다",
+        "collected_at": "2026-07-15"
+      }
+    ]
+  }
+]

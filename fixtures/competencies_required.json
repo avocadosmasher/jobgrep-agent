@@ -1,0 +1,392 @@
+[
+  {
+    "comp_id": "req-be-01",
+    "category": "D1_SW기반",
+    "name": "Python 또는 Java 기반 프로덕션 서비스 개발 경험 3년 이상",
+    "importance": "필수",
+    "level": "실무운영",
+    "evidence": [
+      {
+        "source_name": "백엔드 엔지니어 채용",
+        "url": "https://careers.technovation.example.com/jobs/backend-engineer",
+        "quote": "Python 또는 Java 기반 프로덕션 서비스 개발 경험 3년 이상",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-be-02",
+    "category": "D2_백엔드",
+    "name": "RESTful API 및 gRPC API 설계 경험",
+    "importance": "필수",
+    "level": "실무운영",
+    "evidence": [
+      {
+        "source_name": "백엔드 엔지니어 채용",
+        "url": "https://careers.technovation.example.com/jobs/backend-engineer",
+        "quote": "RESTful API 및 gRPC API 설계 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-be-03",
+    "category": "D2_백엔드",
+    "name": "RDB(MySQL/PostgreSQL) 스키마 설계 및 쿼리 튜닝 경험",
+    "importance": "필수",
+    "level": "실무운영",
+    "evidence": [
+      {
+        "source_name": "백엔드 엔지니어 채용",
+        "url": "https://careers.technovation.example.com/jobs/backend-engineer",
+        "quote": "RDB(MySQL/PostgreSQL) 스키마 설계 및 쿼리 튜닝 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-be-04",
+    "category": "D2_백엔드",
+    "name": "Kafka 등 메시지 큐를 활용한 비동기 처리 경험",
+    "importance": "필수",
+    "level": "써봄",
+    "evidence": [
+      {
+        "source_name": "백엔드 엔지니어 채용",
+        "url": "https://careers.technovation.example.com/jobs/backend-engineer",
+        "quote": "Kafka 등 메시지 큐를 활용한 비동기 처리 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-be-05",
+    "category": "D4_오케스트레이션",
+    "name": "Docker 기반 컨테이너 이미지 빌드 및 배포 경험",
+    "importance": "필수",
+    "level": "써봄",
+    "evidence": [
+      {
+        "source_name": "백엔드 엔지니어 채용",
+        "url": "https://careers.technovation.example.com/jobs/backend-engineer",
+        "quote": "Docker 기반 컨테이너 이미지 빌드 및 배포 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-be-06",
+    "category": "D4_오케스트레이션",
+    "name": "Kubernetes 클러스터 운영 경험",
+    "importance": "필수",
+    "level": "실무운영",
+    "evidence": [
+      {
+        "source_name": "백엔드 엔지니어 채용",
+        "url": "https://careers.technovation.example.com/jobs/backend-engineer",
+        "quote": "Kubernetes 클러스터 운영 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-be-07",
+    "category": "D3_클라우드",
+    "name": "AWS 환경에서 서비스를 운영한 경험",
+    "importance": "필수",
+    "level": "실무운영",
+    "evidence": [
+      {
+        "source_name": "백엔드 엔지니어 채용",
+        "url": "https://careers.technovation.example.com/jobs/backend-engineer",
+        "quote": "AWS 환경에서 서비스를 운영한 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-be-08",
+    "category": "D1_SW기반",
+    "name": "Git 기반 협업 및 코드 리뷰 문화에 익숙한 분",
+    "importance": "필수",
+    "level": "써봄",
+    "evidence": [
+      {
+        "source_name": "백엔드 엔지니어 채용",
+        "url": "https://careers.technovation.example.com/jobs/backend-engineer",
+        "quote": "Git 기반 협업 및 코드 리뷰 문화에 익숙한 분",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-be-09",
+    "category": "D1_SW기반",
+    "name": "단위 테스트 작성 및 테스트 커버리지 관리 경험",
+    "importance": "필수",
+    "level": "써봄",
+    "evidence": [
+      {
+        "source_name": "백엔드 엔지니어 채용",
+        "url": "https://careers.technovation.example.com/jobs/backend-engineer",
+        "quote": "단위 테스트 작성 및 테스트 커버리지 관리 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-be-10",
+    "category": "D2_백엔드",
+    "name": "대규모 트래픽 환경에서의 시스템 확장성 설계 경험",
+    "importance": "필수",
+    "level": "설계주도",
+    "evidence": [
+      {
+        "source_name": "백엔드 엔지니어 채용",
+        "url": "https://careers.technovation.example.com/jobs/backend-engineer",
+        "quote": "대규모 트래픽 환경에서의 시스템 확장성 설계 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-be-11",
+    "category": "D3_클라우드",
+    "name": "Terraform 등 IaC 도구를 활용한 인프라 프로비저닝 경험",
+    "importance": "우대",
+    "level": "써봄",
+    "evidence": [
+      {
+        "source_name": "백엔드 엔지니어 채용",
+        "url": "https://careers.technovation.example.com/jobs/backend-engineer",
+        "quote": "Terraform 등 IaC 도구를 활용한 인프라 프로비저닝 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-be-12",
+    "category": "D4_오케스트레이션",
+    "name": "Prometheus/Grafana 기반 모니터링 체계 구축 경험",
+    "importance": "우대",
+    "level": "써봄",
+    "evidence": [
+      {
+        "source_name": "백엔드 엔지니어 채용",
+        "url": "https://careers.technovation.example.com/jobs/backend-engineer",
+        "quote": "Prometheus/Grafana 기반 모니터링 체계 구축 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-be-13",
+    "category": "C_인재상컬처핏",
+    "name": "문제의 근본 원인을 끝까지 파고드는 주도적 태도",
+    "importance": "우대",
+    "level": null,
+    "evidence": [
+      {
+        "source_name": "백엔드 엔지니어 채용",
+        "url": "https://careers.technovation.example.com/jobs/backend-engineer",
+        "quote": "문제의 근본 원인을 끝까지 파고드는 주도적 태도",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-be-14",
+    "category": "C_인재상컬처핏",
+    "name": "동료와 적극적으로 지식을 공유하는 협업 문화",
+    "importance": "우대",
+    "level": null,
+    "evidence": [
+      {
+        "source_name": "백엔드 엔지니어 채용",
+        "url": "https://careers.technovation.example.com/jobs/backend-engineer",
+        "quote": "동료와 적극적으로 지식을 공유하는 협업 문화",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-ai-01",
+    "category": "D5_AI인프라",
+    "name": "Slurm 또는 Kubernetes 기반 GPU 클러스터 스케줄링 경험",
+    "importance": "필수",
+    "level": "실무운영",
+    "evidence": [
+      {
+        "source_name": "AI 인프라 엔지니어 채용",
+        "url": "https://careers.cloudmind.example.com/jobs/ai-infra-engineer",
+        "quote": "Slurm 또는 Kubernetes 기반 GPU 클러스터 스케줄링 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-ai-02",
+    "category": "D5_AI인프라",
+    "name": "vLLM, Triton 등 모델 서빙 프레임워크 운영 경험",
+    "importance": "필수",
+    "level": "실무운영",
+    "evidence": [
+      {
+        "source_name": "AI 인프라 엔지니어 채용",
+        "url": "https://careers.cloudmind.example.com/jobs/ai-infra-engineer",
+        "quote": "vLLM, Triton 등 모델 서빙 프레임워크 운영 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-ai-03",
+    "category": "D5_AI인프라",
+    "name": "PyTorch 기반 분산 학습(Distributed Data Parallel) 구축 경험",
+    "importance": "필수",
+    "level": "실무운영",
+    "evidence": [
+      {
+        "source_name": "AI 인프라 엔지니어 채용",
+        "url": "https://careers.cloudmind.example.com/jobs/ai-infra-engineer",
+        "quote": "PyTorch 기반 분산 학습(Distributed Data Parallel) 구축 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-ai-04",
+    "category": "D5_AI인프라",
+    "name": "추론 지연·처리량 최적화를 위한 프로파일링 경험",
+    "importance": "필수",
+    "level": "써봄",
+    "evidence": [
+      {
+        "source_name": "AI 인프라 엔지니어 채용",
+        "url": "https://careers.cloudmind.example.com/jobs/ai-infra-engineer",
+        "quote": "추론 지연·처리량 최적화를 위한 프로파일링 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-ai-05",
+    "category": "D5_AI인프라",
+    "name": "MLflow 등을 활용한 ML 실험 관리 경험",
+    "importance": "필수",
+    "level": "써봄",
+    "evidence": [
+      {
+        "source_name": "AI 인프라 엔지니어 채용",
+        "url": "https://careers.cloudmind.example.com/jobs/ai-infra-engineer",
+        "quote": "MLflow 등을 활용한 ML 실험 관리 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-ai-06",
+    "category": "D5_AI인프라",
+    "name": "벡터 DB(Faiss, Milvus 등) 운영 경험",
+    "importance": "필수",
+    "level": "써봄",
+    "evidence": [
+      {
+        "source_name": "AI 인프라 엔지니어 채용",
+        "url": "https://careers.cloudmind.example.com/jobs/ai-infra-engineer",
+        "quote": "벡터 DB(Faiss, Milvus 등) 운영 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-ai-07",
+    "category": "D3_클라우드",
+    "name": "Linux 시스템 및 네트워킹 기초 지식",
+    "importance": "필수",
+    "level": "학습함",
+    "evidence": [
+      {
+        "source_name": "AI 인프라 엔지니어 채용",
+        "url": "https://careers.cloudmind.example.com/jobs/ai-infra-engineer",
+        "quote": "Linux 시스템 및 네트워킹 기초 지식",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-ai-08",
+    "category": "D4_오케스트레이션",
+    "name": "Docker 기반 컨테이너 환경 구축 경험",
+    "importance": "필수",
+    "level": "써봄",
+    "evidence": [
+      {
+        "source_name": "AI 인프라 엔지니어 채용",
+        "url": "https://careers.cloudmind.example.com/jobs/ai-infra-engineer",
+        "quote": "Docker 기반 컨테이너 환경 구축 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-ai-09",
+    "category": "D4_오케스트레이션",
+    "name": "Kubernetes Operator 패턴을 활용한 커스텀 리소스 개발 경험",
+    "importance": "우대",
+    "level": "설계주도",
+    "evidence": [
+      {
+        "source_name": "AI 인프라 엔지니어 채용",
+        "url": "https://careers.cloudmind.example.com/jobs/ai-infra-engineer",
+        "quote": "Kubernetes Operator 패턴을 활용한 커스텀 리소스 개발 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-ai-10",
+    "category": "D5_AI인프라",
+    "name": "대규모 GPU 클러스터에서의 비용 최적화 경험",
+    "importance": "우대",
+    "level": "써봄",
+    "evidence": [
+      {
+        "source_name": "AI 인프라 엔지니어 채용",
+        "url": "https://careers.cloudmind.example.com/jobs/ai-infra-engineer",
+        "quote": "대규모 GPU 클러스터에서의 비용 최적화 경험",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-ai-11",
+    "category": "C_인재상컬처핏",
+    "name": "최신 기술 트렌드를 빠르게 학습하고 적용하는 자세",
+    "importance": "우대",
+    "level": null,
+    "evidence": [
+      {
+        "source_name": "AI 인프라 엔지니어 채용",
+        "url": "https://careers.cloudmind.example.com/jobs/ai-infra-engineer",
+        "quote": "최신 기술 트렌드를 빠르게 학습하고 적용하는 자세",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  },
+  {
+    "comp_id": "req-ai-12",
+    "category": "C_인재상컬처핏",
+    "name": "실험 결과를 데이터로 검증하는 태도",
+    "importance": "우대",
+    "level": null,
+    "evidence": [
+      {
+        "source_name": "AI 인프라 엔지니어 채용",
+        "url": "https://careers.cloudmind.example.com/jobs/ai-infra-engineer",
+        "quote": "실험 결과를 데이터로 검증하는 태도",
+        "collected_at": "2026-08-01"
+      }
+    ]
+  }
+]

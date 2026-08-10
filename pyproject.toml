@@ -1,0 +1,30 @@
+[project]
+name = "jobprep-agent"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11"
+dependencies = [
+    "faiss-cpu>=1.15.0",
+    "langgraph>=1.2.10",
+    "langgraph-checkpoint-sqlite>=3.1.1",
+    "numpy>=2.4.6",
+    "openai>=2.53.0",
+    "pydantic>=2.13.4",
+    "pymupdf>=1.28.2",
+    "python-docx>=1.2.0",
+    "python-dotenv>=1.2.2",
+    "pyyaml>=6.0.3",
+    "streamlit>=1.61.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+markers = ["llm: 실제 LLM API를 호출하는 테스트 (비용 발생)"]
+pythonpath = ["."]
+# 기본 실행은 LLM 호출 테스트를 제외한다 (DEVPLAN §4). `-m llm`을 주면 CLI 값이 이겨서
+# 온라인 테스트만 돈다: uv run pytest -q -m llm
+addopts = "-m 'not llm'"
