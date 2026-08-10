@@ -32,12 +32,21 @@ from app.progress import (  # noqa: E402
     ProgressTracker,
     close_status,
     live_status,
+    load_labels,
     panel_slot,
     render_panel,
 )
 from contracts.models import ProfileJSON  # noqa: E402
 from contracts.state import GraphState  # noqa: E402
 from graphs.analysis_graph import build_analysis_graph, node_sequence  # noqa: E402
+from graphs.profile_graph import (  # noqa: E402
+    build_profile_graph,
+    download_filename,
+    initial_profile_state,
+    load_saved_profile,
+    profile_bytes,
+    profile_node_sequence,
+)
 from graphs.session import (  # noqa: E402
     THREAD_KEY,
     RunStatus,
@@ -52,10 +61,40 @@ from llm.vision import extract_text_from_image  # noqa: E402
 from render.cards import render_brief  # noqa: E402
 from render.markdown import filename_for, render_markdown  # noqa: E402
 
-SAMPLE_PROFILE = Path(__file__).resolve().parent.parent / "fixtures" / "profile_sample.json"
+ROOT = Path(__file__).resolve().parent.parent
+SAMPLE_PROFILE = ROOT / "fixtures" / "profile_sample.json"
+PROFILE_LABELS = ROOT / "presets" / "profile_labels.yaml"
+
 GRAPH_KEY = "analysis_graph"
 TRACKER_KEY = "progress_tracker"
 ERROR_KEY = "run_error"
+
+# --- 두 모드 (UC-1 / UC-2) -----------------------------------------------------
+#
+# 화면 하나에 그래프가 둘이다. **서로의 상태를 밟지 않는 것이 유일한 규칙**이며,
+# 그것을 이름 규칙이 아니라 **네임스페이스**로 만든다 — UC-1의 그래프·스레드·
+# 트래커·오류는 전부 `st.session_state[PROFILE_NS]` 안쪽 dict에 산다. 키를
+# `uc1_graph`처럼 접두사로 가르면 새 키를 더할 때마다 접두사를 잊을 자리가 생기고,
+# 그때 두 모드가 같은 스레드를 공유해 분석 결과가 프로필 화면에 뜬다.
+#
+# `get_or_create_thread()`가 `MutableMapping`이면 무엇이든 받게 돼 있어서(T10)
+# 안쪽 dict를 그대로 넘기면 세션 계층은 고칠 게 없다.
+MODE_ANALYSIS = "analysis"
+MODE_PROFILE = "profile"
+MODE_KEY = "app_mode"
+MODE_LABELS = {
+    MODE_ANALYSIS: "🎯 회사 분석 (UC-2)",
+    MODE_PROFILE: "👤 내 프로필 만들기 (UC-1)",
+}
+MODE_BY_LABEL = {label: mode for mode, label in MODE_LABELS.items()}
+
+PROFILE_NS = "uc1_session"
+
+# 업로드된 이력서가 놓일 자리. `parse_resume(file_path)`가 **경로**를 받으므로
+# 어딘가에 떨어뜨려야 한다. 체크포인트와 같은 폴더 아래라 `.gitignore`가 덮는다.
+UPLOAD_DIR = Path(".jobprep") / "uploads"
+RESUME_PATH_KEY = "resume_path"
+RESUME_NAME_KEY = "resume_name"
 
 # JD 본문 `text_area`의 위젯 키. 이미지 추출 결과를 **위젯 생성 전에** 이 키로 넣어
 # 두면 폼이 그 값으로 그려진다 — 사용자가 그대로 고칠 수 있는 상태다.
@@ -99,10 +138,20 @@ def get_tracker() -> ProgressTracker:
     return st.session_state[TRACKER_KEY]
 
 
-def load_profile(uploaded, use_sample: bool) -> ProfileJSON | None:
-    """업로드된 ProfileJSON을 읽는다. 설계 §10-3 — UC-1 산출물을 업로드로 받는다."""
+def load_profile(uploaded, use_sample: bool, use_saved: bool = False) -> ProfileJSON | None:
+    """분석에 쓸 ProfileJSON을 고른다. 설계 §10-3 — UC-1 산출물을 업로드로 받는다.
+
+    우선순위는 **사용자가 방금 지정한 것 → 직전 산출 → 시연용 샘플**이다.
+    `use_saved`는 UC-1이 디스크에 남긴 프로필을 다운로드·업로드 없이 바로 집는
+    지름길이며, 기본값이 `False`인 것이 중요하다 — 기본으로 켜면 예전에 만들어 둔
+    프로필이 사용자도 모르게 분석의 근거가 된다.
+    """
     if uploaded is not None:
         return ProfileJSON.model_validate_json(uploaded.getvalue())
+    if use_saved:
+        saved = load_saved_profile()
+        if saved is not None:
+            return saved
     if use_sample and SAMPLE_PROFILE.exists():
         return ProfileJSON.model_validate_json(SAMPLE_PROFILE.read_bytes())
     return None
@@ -126,7 +175,9 @@ def initial_state(
     }
 
 
-def advance(graph, thread_id: str, *, slot=None, **kwargs) -> RunStatus | None:
+def advance(
+    graph, thread_id: str, *, slot=None, tracker=None, store=None, **kwargs
+) -> RunStatus | None:
     """`resume_or_start()`를 감싸 **진행을 보여주고** 실패를 화면에 남긴다.
 
     실행하는 동안 노드 이벤트가 `st.status` 패널로 흐른다(T13). 콜백은
@@ -136,9 +187,15 @@ def advance(graph, thread_id: str, *, slot=None, **kwargs) -> RunStatus | None:
     LLM 호출이 실패하면(크레딧 소진·타임아웃) 그래프는 중간에서 멈추고, 그 스레드는
     `interrupts`가 비어 있어 국면 판별상 "완료"로 보인다. 예외를 삼키면 사용자는
     까닭 모를 빈 결과를 보게 되므로 사유를 세션에 남겨 그대로 띄운다.
+
+    `tracker`·`store`는 UC-1이 같은 실행 경로를 쓰기 위한 자리다(T24). 안 주면
+    UC-2의 세션 전역을 그대로 쓴다 — **실행 경로를 두 벌로 만들지 않는 것**이
+    핵심이고(D27의 규칙은 그래프가 몇 개든 같다), 그래서 여기서 갈리는 것은
+    "어느 트래커·어느 저장소인가"뿐이다.
     """
-    st.session_state.pop(ERROR_KEY, None)
-    tracker = get_tracker()
+    store = st.session_state if store is None else store
+    store.pop(ERROR_KEY, None)
+    tracker = get_tracker() if tracker is None else tracker
     tracker.begin()  # 중단 중 흘러간 사용자 대기 시간을 노드 시간에 섞지 않는다
     box, on_event = live_status(tracker, slot=slot)
 
@@ -146,7 +203,7 @@ def advance(graph, thread_id: str, *, slot=None, **kwargs) -> RunStatus | None:
         return resume_or_start(graph, thread_id, on_event=on_event, **kwargs)
     except Exception as exc:  # noqa: BLE001 — 무엇이 터지든 화면에는 나와야 한다
         reason = f"{type(exc).__name__}: {exc}"
-        st.session_state[ERROR_KEY] = reason
+        store[ERROR_KEY] = reason
         tracker.fail(reason)
         return None
     finally:
@@ -276,6 +333,19 @@ def render_input_form() -> tuple[bool, dict]:
         st.caption("내 프로필 — 없으면 판정 근거가 없어 모든 항목이 공백 고지로 나갑니다.")
         pcol1, pcol2 = st.columns([3, 2])
         uploaded = pcol1.file_uploader("ProfileJSON 업로드", type="json")
+        # UC-1이 남긴 프로필을 다운로드·업로드 없이 바로 집는 지름길(T24).
+        # **기본이 꺼짐인 것이 중요하다** — 켜 두면 예전 프로필이 사용자도 모르게
+        # 판정 근거가 된다. 위젯 자체는 늘 그린다(없으면 비활성) — 있을 때만
+        # 나타나면 화면이 파일 시스템 상태에 따라 달라진다.
+        has_saved = load_saved_profile() is not None
+        use_saved = pcol2.checkbox(
+            "직전에 만든 프로필 사용",
+            value=False,
+            disabled=not has_saved,
+            help="[내 프로필 만들기]에서 만든 가장 최근 프로필을 씁니다."
+            if has_saved
+            else "아직 만들어 둔 프로필이 없습니다.",
+        )
         use_sample = pcol2.checkbox("샘플 프로필로 시연", value=True)
 
         submitted = st.form_submit_button("분석 실행", type="primary")
@@ -286,6 +356,7 @@ def render_input_form() -> tuple[bool, dict]:
         "target_date": target_date,
         "raw_jd": raw_jd.strip(),
         "uploaded": uploaded,
+        "use_saved": use_saved,
         "use_sample": use_sample,
     }
 
@@ -318,7 +389,7 @@ def start(graph, thread_id: str, slot) -> None:
         )
 
     try:
-        profile = load_profile(form["uploaded"], form["use_sample"])
+        profile = load_profile(form["uploaded"], form["use_sample"], form["use_saved"])
     except ValueError as exc:
         st.error(f"ProfileJSON을 읽지 못했습니다: {exc}")
         return
@@ -354,6 +425,11 @@ RESUME_NOTICES: dict[str, str] = {
     "delta_interview": (
         "판정 근거가 부족한 항목이 있어 잠시 멈췄습니다. "
         "답하면 **처음부터 다시 분석하지 않고** 이 지점부터 이어서 진행합니다."
+    ),
+    "level_survey": (
+        "이력서에서 읽은 역량은 **미리 골라 뒀습니다** — 확인하고 고쳐 주세요. "
+        "잘하는 정도가 아니라 **무엇을 해봤는지**로 고르면 됩니다. "
+        "해보지 않은 항목은 그냥 두거나 '잘 모르겠음'을 고르세요."
     ),
 }
 DEFAULT_RESUME_NOTICE = (
@@ -438,12 +514,10 @@ def finish(status: RunStatus) -> None:
     st.button("새 분석 시작", on_click=reset_thread)
 
 
-# --- 진입점 -------------------------------------------------------------------
+# --- 화면: 회사 분석 (UC-2) ----------------------------------------------------
 
 
-def main() -> None:
-    st.set_page_config(page_title="취업준비 Helper Agent", page_icon="🎯", layout="wide")
-    st.title("🎯 취업준비 Helper Agent")
+def analysis_screen() -> None:
     st.caption("JD를 붙여넣으면 3트랙 전략 브리프를 만들어 `.md`로 내려받습니다.")
 
     graph = get_graph()
@@ -471,6 +545,245 @@ def main() -> None:
         resume(graph, thread_id, status, slot)
     else:
         finish(status)
+
+
+# --- 화면: 내 프로필 만들기 (UC-1) ---------------------------------------------
+#
+# UC-2와 **같은 상태기계**다 (미시작 → 중단됨 → 완료). 그래프·스레드·트래커만
+# 다른 것을 쓰고, 실행은 `advance()` 한 곳을 그대로 지난다. 화면을 두 벌 만들지
+# 않는 것이 D27의 규칙("실행 전에 반드시 상태를 조회한다")을 그래프가 둘이 돼도
+# 지키는 방법이다.
+
+
+def profile_ns() -> dict:
+    """UC-1 전용 세션 네임스페이스. UC-2와 키가 겹치지 않는 유일한 이유다."""
+    if PROFILE_NS not in st.session_state:
+        st.session_state[PROFILE_NS] = {}
+    return st.session_state[PROFILE_NS]
+
+
+def get_profile_graph(ns: dict):
+    """UC-1 그래프도 세션당 하나. checkpointer 수명이 세션과 같아진다(D27)."""
+    if GRAPH_KEY not in ns:
+        ns[GRAPH_KEY] = build_profile_graph(build_checkpointer())
+    return ns[GRAPH_KEY]
+
+
+def get_profile_tracker(ns: dict) -> ProgressTracker:
+    """진행 표시. **문구 시트가 UC-2와 다르다** — `presets/profile_labels.yaml`.
+
+    같은 시트를 쓰면 프로필을 만드는 내내 "회사 분석 진행 중"이 떠 있다. 노드
+    라벨만이 아니라 제목이 달라야 해서 시트를 통째로 가른 것이며, 코드에 문구를
+    적지 않는다는 T13의 규칙은 그대로다.
+    """
+    if TRACKER_KEY not in ns:
+        names = [name for name, _ in profile_node_sequence()]
+        ns[TRACKER_KEY] = ProgressTracker(names, labels=load_labels(PROFILE_LABELS))
+    return ns[TRACKER_KEY]
+
+
+def reset_profile() -> None:
+    """새 프로필 = 새 스레드. 올려 둔 이력서 표식도 함께 지운다."""
+    profile_ns().clear()
+
+
+def store_resume_upload(uploaded, ns: dict) -> str:
+    """업로드된 이력서를 디스크에 놓고 그 경로를 돌려준다.
+
+    **여기서 파싱하지 않는다.** 파싱은 그래프의 `parse_resume` 노드가 하고, 여기서
+    한 번 더 하면 스캔본에서 **OCR이 두 번 돈다**(T22 — 돈이 드는 경로다).
+    `parse_resume(file_path)`가 경로를 받으므로 파일로 떨어뜨리는 일만 한다.
+
+    같은 파일이 rerun마다 다시 쓰이지 않게 내용 해시를 표식으로 남긴다 —
+    JD 이미지의 `IMAGE_DIGEST_KEY`와 같은 장치다.
+    """
+    data = uploaded.getvalue()
+    digest = hashlib.sha256(data).hexdigest()
+    suffix = Path(uploaded.name).suffix.lower()
+    path = UPLOAD_DIR / f"{digest[:16]}{suffix}"
+
+    if ns.get(RESUME_PATH_KEY) != str(path) or not path.exists():
+        UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+
+    ns[RESUME_PATH_KEY] = str(path)
+    ns[RESUME_NAME_KEY] = uploaded.name
+    return str(path)
+
+
+def render_resume_input(ns: dict) -> str:
+    """이력서 업로더. **폼 밖이다.**
+
+    T15b가 같은 자리에서 깨졌다(D48) — `st.form` 안의 위젯은 제출 전까지 rerun을
+    일으키지 않아서, 파일이 서버에 닿는 시점이 곧 제출 순간이다. 그러면 "무엇을
+    올렸는지 확인하고 실행"이 성립하지 않고, H4 보정 화면(T22b)이 들어설 자리도
+    사라진다. `AppTest`는 폼 배칭을 모사하지 않아 이 차이를 못 잡으므로(D41),
+    테스트는 동작이 아니라 **배치**(`form_id`가 비었는지)를 고정한다.
+    """
+    uploaded = st.file_uploader(
+        "이력서 · 경력기술서",
+        type=["pdf", "docx", "png", "jpg", "jpeg"],
+        help="텍스트가 살아 있는 PDF·DOCX가 가장 정확합니다. 스캔본·사진은 글자 인식을 거칩니다.",
+    )
+    if uploaded is None:
+        return ""
+
+    path = store_resume_upload(uploaded, ns)
+    st.success(f"**{uploaded.name}**을(를) 받았습니다. 아래 [프로필 만들기 시작]을 누르면 읽습니다.")
+    return path
+
+
+def render_profile_form() -> tuple[bool, str]:
+    with st.form("profile_form"):
+        role = st.text_input(
+            "희망 직무",
+            placeholder="예: 백엔드 엔지니어",
+            help="이력서에서 이 직무와 관련된 역량을 뽑습니다. 비워도 진행됩니다.",
+        )
+        submitted = st.form_submit_button("프로필 만들기 시작", type="primary")
+    return submitted, role.strip()
+
+
+def profile_start(graph, thread_id: str, ns: dict, slot) -> None:
+    # 업로더를 폼보다 먼저 그린다 — 폼 밖이라는 사실이 순서로도 드러난다.
+    resume_path = render_resume_input(ns)
+    submitted, role = render_profile_form()
+    if not submitted:
+        return
+
+    # **이력서 없이도 진행한다.** 설문만으로도 프로필은 만들어지며(질문세트의
+    # "폭 보완"), 그때 `extract`는 문서가 없어 LLM을 아예 부르지 않는다.
+    if not resume_path:
+        st.info(
+            "이력서 없이 **설문만으로** 프로필을 만듭니다. "
+            "이력서를 올리면 해당 역량이 미리 골라진 채로 나와 훨씬 빠릅니다."
+        )
+
+    advance(
+        graph,
+        thread_id,
+        slot=slot,
+        tracker=get_profile_tracker(ns),
+        store=ns,
+        initial_input=initial_profile_state(resume_path, role=role),
+    )
+    st.rerun()
+
+
+def profile_resume_screen(graph, thread_id: str, ns: dict, status: RunStatus, slot) -> None:
+    """H2 폼을 그리고 답을 받아 재개한다. **UC-2의 `resume()`과 같은 모양이다.**"""
+    st.info(resume_notice(status.questions))
+
+    answers = render_pending(status.questions, form_key="profile_hitl_form")
+    if answers is None:
+        return
+
+    advance(
+        graph,
+        thread_id,
+        slot=slot,
+        tracker=get_profile_tracker(ns),
+        store=ns,
+        resume=answers,
+    )
+    st.rerun()
+
+
+def render_profile_result(profile: ProfileJSON) -> None:
+    """완성된 프로필 요약 + 다운로드.
+
+    **다운로드가 정본 export 경로다**(설계 §10-3 — 프로필은 영속·다운로드/업로드).
+    디스크 저장은 `build_profile` 노드가 이미 해 뒀고, 그건 같은 화면에서 바로
+    이어 쓰기 위한 편의판이다.
+    """
+    covered = list(profile.coverage.values())
+    average = sum(covered) / len(covered) if covered else 0.0
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("역량", f"{len(profile.competencies)}개")
+    col2.metric("레벨 좌표", f"{len(profile.level_coordinates)}개")
+    col3.metric("평균 커버리지", f"{average * 100:.0f}%")
+
+    if profile.coverage:
+        st.caption("대분류별 커버리지 — 답한 축의 비율입니다. '해당 없음'은 분자에서 빠집니다.")
+        st.bar_chart({"커버리지": {c.value: v for c, v in profile.coverage.items()}})
+
+    st.download_button(
+        "ProfileJSON 다운로드",
+        data=profile_bytes(profile),
+        file_name=download_filename(profile),
+        mime="application/json",
+        type="primary",
+    )
+    st.caption(
+        "이 파일을 **회사 분석** 화면에서 업로드하면 판정 근거가 생겨 되묻는 질문이 줄어듭니다. "
+        "같은 브라우저에서 바로 쓰려면 [직전에 만든 프로필 사용]을 켜세요."
+    )
+
+
+def profile_finish(status: RunStatus) -> None:
+    profile = status.values.get("profile")
+    if profile is None:
+        st.error("프로필이 만들어지지 않았습니다. 아래 [프로필 다시 만들기]로 다시 시도해주세요.")
+    else:
+        st.success("프로필이 완성됐습니다.")
+        render_profile_result(profile)
+
+    st.divider()
+    st.button("프로필 다시 만들기", on_click=reset_profile)
+
+
+def profile_screen() -> None:
+    st.caption("이력서를 올리고 **해본 만큼만** 고르면 `ProfileJSON`이 나옵니다. 회사 무관 · 한 번만 만들면 됩니다.")
+
+    ns = profile_ns()
+    graph = get_profile_graph(ns)
+    thread_id = get_or_create_thread(ns)
+
+    # UC-2와 같은 규칙 — 실행 전에 상태부터 조회한다(D27).
+    status = inspect_thread(graph, thread_id)
+
+    if error := ns.get(ERROR_KEY):
+        st.error(f"실행이 중단됐습니다 — {error}")
+
+    slot = panel_slot()
+    if status.phase is not ThreadPhase.NOT_STARTED and TRACKER_KEY in ns:
+        render_panel(get_profile_tracker(ns), slot=slot)
+
+    if status.phase is ThreadPhase.NOT_STARTED:
+        profile_start(graph, thread_id, ns, slot)
+    elif status.is_interrupted:
+        profile_resume_screen(graph, thread_id, ns, status, slot)
+    else:
+        profile_finish(status)
+
+
+# --- 진입점 -------------------------------------------------------------------
+
+
+def main() -> None:
+    st.set_page_config(page_title="취업준비 Helper Agent", page_icon="🎯", layout="wide")
+    st.title("🎯 취업준비 Helper Agent")
+
+    # 모드 전환은 **사이드바**다. 본문에 두면 위젯 순서가 두 화면 사이에서 흔들리고,
+    # 무엇보다 중단 국면의 폼 바로 위에 "다른 걸 하러 가기"가 붙어 오답을 부른다.
+    #
+    # **`format_func`을 쓰지 않는다.** 라벨을 그대로 선택지로 두고 뒤에서 되짚는다 —
+    # 내부 키를 선택지로 두고 `format_func`으로 꾸미면 위젯 값이 키라서 화면 문자열과
+    # 어긋나고, `AppTest`가 그 조합을 못 다뤄 화면 테스트가 아예 불가능해진다(실측).
+    label = st.sidebar.radio(
+        "무엇을 할까요",
+        options=[MODE_LABELS[MODE_ANALYSIS], MODE_LABELS[MODE_PROFILE]],
+        key=MODE_KEY,
+        help="프로필을 먼저 만들어 두면 회사 분석에서 되묻는 질문이 줄어듭니다.",
+    )
+    mode = MODE_BY_LABEL.get(label, MODE_ANALYSIS)
+
+    # 모드를 오가도 각자의 스레드는 그대로 서 있다 — 네임스페이스가 갈려 있어서다.
+    if mode == MODE_PROFILE:
+        profile_screen()
+    else:
+        analysis_screen()
 
 
 if __name__ == "__main__":

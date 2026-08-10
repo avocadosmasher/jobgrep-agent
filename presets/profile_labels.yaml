@@ -1,0 +1,37 @@
+# 진행 표시 라벨 — **UC-1(프로필 만들기) 전용 시트** (T24).
+#
+# 스키마는 `node_labels.yaml`과 같고 `app/progress.py::load_labels(path)`가 그대로 읽는다.
+# 시트를 가른 이유는 하나다 — 제목이 그래프마다 다르다. 회사 분석 그래프의
+# "회사 분석 진행 중"이 프로필을 만드는 동안 떠 있으면 사용자는 자기가 무엇을
+# 시켰는지 의심하게 된다. 제목은 시트당 하나뿐인 값이라 한 파일에 둘을 담을 수 없고,
+# 담으려면 스키마를 고쳐야 하는데 그건 §2-1이 막는다(공유 파일의 스키마는 불가침).
+#
+# 그래프 하나 = 시트 하나. 노드가 늘면 그 그래프의 시트에만 줄을 더한다.
+
+title: 프로필 만드는 중
+paused_title: 프로필 — 답변 대기
+complete_title: 프로필 완성
+failed_title: 프로필 만들기 중단됨
+fallback: 처리 중
+
+nodes:
+  parse_resume:
+    label: 이력서 읽기
+    counts:
+      - key: source_docs
+        unit: 건
+        hide_zero: true   # 이력서 없이 설문만 도는 경로가 있다 — 0을 띄우면 실패로 읽힌다
+
+  extract:
+    label: 보유 역량 추출
+    counts:
+      - key: required
+        unit: 개
+
+  # H2 (T23). 중단 시 "N건 질문 대기"는 `app/progress.py`가 페이로드에서 직접
+  # 세므로 counts가 필요 없다. 산출인 `profile`은 늘 1건이라 세어 봐야 뜻이 없다.
+  level_survey:
+    label: 레벨 측정
+
+  build_profile:
+    label: 프로필 저장
