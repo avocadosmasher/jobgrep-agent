@@ -373,7 +373,11 @@ def test_사전채움이_없는_축은_아무것도_안_고른_채로_뜬다(sur
     answers = render_prompt_form(prompt, form_key="t23")
 
     assert all(call["index"] is None for call in fake_st.radio_calls)
-    assert answers == {}, "아무것도 안 골랐는데 답변이 실렸다"
+    # 여기서 걸 것은 **답이 하나도 안 실렸다**이지 "dict가 비었다"가 아니다.
+    # T22b가 전부 공백일 때 키만 남기고 빈 값으로 내보내게 고쳤다 — 빈 dict는
+    # langgraph가 "답 없음"으로 읽어 재개를 통째로 건너뛰기 때문이며, 지어낸
+    # 답이 실리지 않는다는 이 카드의 불변식은 그대로다.
+    assert not any(answers.values()), "아무것도 안 골랐는데 답변이 실렸다"
 
 
 def test_섹션_제목이_대분류마다_한_번씩_찍힌다(survey, fake_st):

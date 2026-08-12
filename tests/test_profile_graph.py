@@ -455,7 +455,14 @@ def test_graph_requires_a_checkpointer():
 
 
 def test_wired_nodes_are_the_four_the_card_specifies():
-    assert PROFILE_NODE_NAMES == ["parse_resume", "extract", "level_survey", "build_profile"]
+    """**목록을 다시 하드코딩하지 말 것**(§2-1 D59) — T22b가 H4를 사이에 끼웠다.
+
+    이 카드가 거는 것은 "이 넷이 이 순서로 있다"이지 "이 넷뿐이다"가 아니다.
+    전제를 배선에서 유도해 두면 다음 노드가 끼어도 안 깨진다.
+    """
+    card_nodes = ["parse_resume", "extract", "level_survey", "build_profile"]
+
+    assert [n for n in PROFILE_NODE_NAMES if n in card_nodes] == card_nodes
 
 
 def test_collection_tools_are_not_wired_into_the_profile_graph():

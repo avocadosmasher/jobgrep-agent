@@ -1,8 +1,9 @@
 """프로필 그래프(UC-1) 조립 — 이력서 한 장에서 `ProfileJSON`까지.
 
 ```
-START → parse_resume → extract → level_survey(H2) → build_profile → END
-                                       ↑ interrupt() H2 (T23)
+START → parse_resume → ocr_review(H4) → extract → level_survey(H2) → build_profile → END
+                            ↑ interrupt() H4 (T22b)      ↑ interrupt() H2 (T23)
+                              못 읽었을 때만 멈춘다
 ```
 
 **왜 분석 그래프와 분리하나** (설계도 §10-3, 카드 맥락):
@@ -49,6 +50,7 @@ from contracts.models import ProfileJSON, SourceDocument
 from contracts.state import GraphState
 from nodes.analysis_nodes import extract
 from nodes.level_survey import level_survey
+from nodes.ocr_review import ocr_review
 from tools.parse_resume import parse_resume
 
 # 이력서 파일 경로가 실리는 상태 칸. 위 "계약에 이력서 칸이 없다" 참조.
@@ -97,9 +99,8 @@ def parse_resume_node(state: GraphState) -> dict:
     빈 문서 하나가 `extract` 호출 1회를 헛되이 쓰는 것은 알고 있는 값이며,
     **그 호출을 막는 것이 H4의 일**이다 — 사람이 고칠 기회를 먼저 줘야 한다.
 
-    T22b가 읽을 이음매 — 이 노드와 `extract` 사이가 H4가 들어갈 자리다.
-    `tools/parse_resume.py::needs_manual_correction(text, confidence)`가 판별자이고,
-    보정 결과는 같은 `source_docs`의 `raw_text`를 갈아끼우면 된다.
+    **그 자리는 이제 채워졌다** — 다음 노드가 `ocr_review`(H4, T22b)이고, 같은
+    판별자(`needs_manual_correction`)로 멈출지를 정한 뒤 `raw_text`를 갈아끼운다.
     """
     path = (state.get(RESUME_PATH_KEY) or "").strip()
     if not path:
@@ -207,6 +208,9 @@ def load_saved_profile(*, directory: str | Path | None = None) -> ProfileJSON | 
 # 실행 순서 정본. 진행 표시(T13)도 이 목록을 봐야 화면과 배선이 어긋나지 않는다.
 PROFILE_NODE_SEQUENCE: list[tuple[str, object]] = [
     ("parse_resume", parse_resume_node),
+    # H4 (T22b). **못 읽은 이력서일 때만** 멈춘다 — 잘 읽힌 문서는 그냥 지나간다.
+    # 자리가 여기인 이유: 고친 텍스트가 `extract`의 입력이어야 한다.
+    ("ocr_review", ocr_review),
     ("extract", extract),  # 분석 그래프 것을 그대로 재사용 (위 모듈 설명 참조)
     ("level_survey", level_survey),
     ("build_profile", build_profile_node),
@@ -222,7 +226,8 @@ def profile_node_sequence() -> list[tuple[str, object]]:
 def build_profile_graph(checkpointer):
     """컴파일된 프로필 그래프를 반환한다. **checkpointer는 필수다.**
 
-    분기가 없는 직선 4노드이며, 그중 하나(H2)가 `interrupt()`로 멈춘다.
+    분기가 없는 직선 배선이며, 그중 둘이 `interrupt()`로 멈춘다 — H2(레벨 측정)는
+    항상, H4(OCR 보정, T22b)는 이력서를 못 읽었을 때만.
     checkpointer가 없으면 멈춘 자리를 저장할 곳이 없어 재개가 성립하지 않으므로,
     langgraph 안쪽에서 나는 알아보기 힘든 오류 대신 여기서 먼저 끊는다.
 

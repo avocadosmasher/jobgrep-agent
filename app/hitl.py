@@ -44,6 +44,9 @@ DEFAULT_TITLE = "추가 입력이 필요합니다"
 SUBMIT_LABELS: dict[str, str] = {
     "job_selection": "이 공고로 분석 시작",
     "level_survey": "프로필 만들기",
+    # 기본 문구("…이어서 분석")는 UC-2의 것이다. 프로필을 만드는 중에 "분석"이
+    # 뜨면 사용자는 자기가 무엇을 시켰는지 의심한다 (T22b, D63과 같은 이유).
+    "ocr_review": "고친 내용으로 계속",
 }
 DEFAULT_SUBMIT_LABEL = "답변 제출하고 이어서 분석"
 
@@ -78,6 +81,7 @@ class FormQuestion:
     multi: bool = False            # 켜지면 radio 대신 multiselect (T19 H1)
     section: str | None = None     # 섹션 제목. 바뀔 때만 찍힌다 (T23 H2)
     default: str | None = None     # 미리 골라 둘 선택지 (T23 H2 — 사전 채움)
+    value: str | None = None       # 텍스트 칸에 미리 채워 둘 내용 (T22b H4 — 보정)
 
 
 @dataclass(frozen=True)
@@ -130,6 +134,7 @@ def _to_question(item: Any, index: int) -> FormQuestion:
 
     section = data.get("section")
     default = data.get("default")
+    value = data.get("value")
 
     return FormQuestion(
         key=key,
@@ -138,6 +143,7 @@ def _to_question(item: Any, index: int) -> FormQuestion:
         multi=bool(data.get("multi")),
         section=str(section) if section else None,
         default=str(default) if default is not None else None,
+        value=str(value) if value is not None else None,
     )
 
 
@@ -204,6 +210,13 @@ def _render_widget(question: FormQuestion, widget_key: str) -> str:
         )
         return BLANK if choice in (None, SKIP_LABEL) else str(choice)
 
+    # **값이 채워진 채로 뜨는 칸 (T22b H4).** 빈 칸으로 띄우면 "인식 결과를 확인하고
+    # 고친다"가 성립하지 않는다 — 사용자가 이력서를 통째로 다시 타이핑해야 한다.
+    # `value`를 안 보낸 페이로드(H3 델타 인터뷰)는 예전 그대로 빈 칸이다. 고친 곳은
+    # 위젯 선택 이 한 곳뿐이고 페이로드 정규화·폼 구성·반환 타입은 그대로다(T19 전례, D62).
+    if question.value:
+        return st.text_area(question.text, value=question.value, key=widget_key, height=260)
+
     return st.text_area(question.text, key=widget_key, height=90, placeholder="자유롭게 적어주세요")
 
 
@@ -218,6 +231,8 @@ def render_prompt_form(
 
     공백 답변은 **키째로 빼고** 보낸다 — 노드가 어차피 버리지만(D28), 여기서
     빼두면 "무엇에 답했나"가 재개 값만 봐도 드러난다.
+
+    **단, 전부 공백이어도 빈 dict를 돌려주지는 않는다.** 이유는 아래 반환문에.
     """
     with st.form(form_key):
         st.subheader(prompt.title)
@@ -243,7 +258,19 @@ def render_prompt_form(
     if not submitted:
         return None
 
-    return {key: value.strip() for key, value in answers.items() if value and value.strip()}
+    answered = {key: value.strip() for key, value in answers.items() if value and value.strip()}
+
+    # **빈 dict를 재개 값으로 내보내지 않는다 (T22b).** langgraph는
+    # `Command(resume={})`를 "중단 id별 답변 맵인데 항목이 하나도 없는 것"으로 읽고
+    # **아무 일도 하지 않는다** — 1.2.10 `pregel/_loop.py`가 "모든 키가 xxh3 해시인가"로
+    # 맵 여부를 판정하는데, 빈 dict는 그 조건이 공허하게 참이라 그리로 떨어진다.
+    # 그러면 사용자가 제출을 눌러도 **같은 폼이 다시 뜨고 이유는 화면 어디에도 안 나온다.**
+    #
+    # 노드들은 이미 "아무것도 안 고른 것도 사용자의 선택"으로 다루므로(H1 `select_job`,
+    # H4 `ocr_review`), 답이 전부 공백이면 **키만 남기고 빈 값으로** 보낸다. 노드가
+    # 공백을 버리는 것은 그대로라 받는 쪽 동작은 `{}`를 받았을 때와 같고, 달라지는
+    # 것은 하나다 — 재개가 실제로 일어난다.
+    return answered or {question.key: BLANK for question in prompt.questions}
 
 
 def render_pending(questions, *, form_key: str = "hitl_form") -> Any | None:
