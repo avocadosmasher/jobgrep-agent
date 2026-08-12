@@ -58,6 +58,7 @@ from graphs.session import (  # noqa: E402
 )
 from llm.client import LLMError  # noqa: E402
 from nodes.gates import entry_warning, gate_notices, profile_notice  # noqa: E402
+from obs.metrics import record_run  # noqa: E402
 from llm.vision import extract_text_from_image  # noqa: E402
 from render.cards import render_brief  # noqa: E402
 from render.markdown import filename_for, render_markdown  # noqa: E402
@@ -208,7 +209,11 @@ def advance(
         tracker.fail(reason)
         return None
     finally:
-        close_status(box, tracker)
+        # 과정 지표(T28)는 여기서 남는다 — **계측을 새로 심지 않는다.** 위 실행이
+        # 흘린 이벤트가 그대로 트래커에 쌓여 있고 `record_run()`은 그걸 접기만 한다.
+        # 실행이 실제로 끝났을 때만 불리는 것은 `close_status()`가 걸러 준다 —
+        # 중단 국면마다 남기면 레코드가 실행 횟수가 아니라 rerun 횟수로 늘어난다.
+        close_status(box, tracker, on_complete=record_run)
 
 
 def reset_thread() -> None:

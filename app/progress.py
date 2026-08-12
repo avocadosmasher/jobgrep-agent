@@ -518,10 +518,24 @@ def live_status(tracker: ProgressTracker, *, slot: Any = None) -> tuple[Any, Cal
     return box, on_event
 
 
-def close_status(box: Any, tracker: ProgressTracker) -> None:
-    """실행이 끝난 뒤 컨테이너 머리말을 최종 국면으로 맞춘다."""
+def close_status(
+    box: Any,
+    tracker: ProgressTracker,
+    *,
+    on_complete: Callable[[ProgressTracker], None] | None = None,
+) -> None:
+    """실행이 끝난 뒤 컨테이너 머리말을 최종 국면으로 맞춘다.
+
+    `on_complete`는 이번 호출로 실행이 **실제로 끝났을 때만** 불린다(T28의 지표
+    기록 지점). 기본값 `None`이면 기존 동작 그대로다 — 호출부(`app/main.py`)가
+    이 인자를 안 주면 아무 일도 늘지 않는다. 중단 국면(`tracker.is_complete`가
+    아직 `False`)에서는 부르지 않는다 — 재개마다 부르면 지표가 실행 횟수가 아니라
+    rerun 횟수로 늘어난다.
+    """
     box.update(
         label=tracker.status_label,
         state=tracker.status_state,
         expanded=not tracker.is_complete,
     )
+    if on_complete is not None and tracker.is_complete:
+        on_complete(tracker)
