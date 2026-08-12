@@ -3,7 +3,7 @@
 ```
 비대화형 (interactive=False)
 START → ingest_pasted_jd → collect → extract → retrieve → decompose → verify
-      → aggregate → build_brief → fill_slots → END
+      → aggregate → quality_gate → build_brief → fill_slots → END
 
 대화형 (interactive=True) — 중단점이 둘이다
 START → ingest_pasted_jd → discover_jobs → select_job → collect → …
@@ -52,6 +52,7 @@ from nodes.analysis_nodes import (
     verify,
 )
 from nodes.collect import collect
+from nodes.gates import quality_gate
 from nodes.interview import delta_interview
 from nodes.select_job import discover, select_job
 
@@ -64,6 +65,9 @@ NODE_SEQUENCE: list[tuple[str, object]] = [
     ("decompose", decompose),
     ("verify", verify),
     ("aggregate", aggregate),
+    # T25 — 브리프 **직전**. 여기서 정리한 문서 묶음이 곧 메타의 입력이라,
+    # 신뢰등급과 미수집 목록이 같은 근거 위에 선다.
+    ("quality_gate", quality_gate),
     ("build_brief", build_brief),
     ("fill_slots", fill_slots),
 ]

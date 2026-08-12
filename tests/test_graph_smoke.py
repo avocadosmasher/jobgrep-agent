@@ -168,17 +168,24 @@ def test_fill_slots_runs_after_build_brief(stubbed_tools):
 
 
 def test_graph_wires_the_documented_sequence():
-    assert NODE_NAMES == [
+    """**목록을 하드코딩하지 않는다**(§2-1 D59) — 노드가 끼면 다음 카드가 여기서 깨진다.
+
+    이 카드가 거는 것은 파이프라인의 **순서**다("추출은 판정보다 앞이다"). 사이에
+    무엇이 끼는지는 그 카드의 테스트가 본다 — T18의 `collect`, T14b의 `retrieve`,
+    T25의 `quality_gate`가 각각 자기 자리를 따로 걸고 있다.
+    """
+    backbone = [
         "ingest_pasted_jd",
-        "collect",    # T18 — 수집 도구 3종을 예산 안에서 돌린다. 소비처(extract) 앞
         "extract",
-        "retrieve",   # T14b — 입력이 갖춰지는 extract 직후, 소비처(aggregate) 앞
+        "retrieve",
         "decompose",
         "verify",
         "aggregate",
         "build_brief",
         "fill_slots",
     ]
+
+    assert [name for name in NODE_NAMES if name in backbone] == backbone
 
 
 def test_nodes_return_partial_updates_not_whole_state(stubbed_tools):

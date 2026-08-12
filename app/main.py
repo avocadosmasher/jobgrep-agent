@@ -57,6 +57,7 @@ from graphs.session import (  # noqa: E402
     resume_or_start,
 )
 from llm.client import LLMError  # noqa: E402
+from nodes.gates import entry_warning, gate_notices, profile_notice  # noqa: E402
 from llm.vision import extract_text_from_image  # noqa: E402
 from render.cards import render_brief  # noqa: E402
 from render.markdown import filename_for, render_markdown  # noqa: E402
@@ -494,6 +495,19 @@ def render_result(final: GraphState) -> None:
         st.error("브리프가 생성되지 않았습니다. 아래 [새 분석 시작]으로 다시 시도해주세요.")
         return
 
+    # 품질 게이트의 **상단 명시** (§12-1 · T25). 문구는 게이트가 갖는다 — 판정과
+    # 설명이 갈리면 한쪽만 고쳐진다. 통과했으면 한 줄도 안 뜬다.
+    #
+    # **경고가 여기 있는 이유** — 실행 화면(`start()`)에서 띄우면 바로 뒤의
+    # `st.rerun()`이 그 화면을 통째로 갈아치워 사용자는 한 번도 못 본다. 결과와
+    # 함께 서 있어야 "이 결과가 왜 얇은지"를 읽을 수 있다.
+    for notice in gate_notices(final.get("gate_status")):
+        st.warning(notice)
+
+    # 프로필이 얇아서 얇게 나온 것이라면 그것도 결과의 일부다 (§12-1 UC-2 진입 경고).
+    if warning := entry_warning(final.get("profile")):
+        st.warning(warning)
+
     render_brief(
         brief,
         matches=final.get("match_results"),
@@ -701,6 +715,11 @@ def render_profile_result(profile: ProfileJSON) -> None:
     디스크 저장은 `build_profile` 노드가 이미 해 뒀고, 그건 같은 화면에서 바로
     이어 쓰기 위한 편의판이다.
     """
+    # UC-1 하드 요건 미달 표시 (§12-1 "프로필 `미완성` 표시", T25). 다운로드는 막지
+    # 않는다 — 얇아도 프로필은 프로필이고, 여기서 막으면 다시 만들 길이 사라진다.
+    if notice := profile_notice(profile):
+        st.warning(notice)
+
     covered = list(profile.coverage.values())
     average = sum(covered) / len(covered) if covered else 0.0
 

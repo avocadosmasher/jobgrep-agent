@@ -94,6 +94,14 @@ nodes:
       - key: match_results
         unit: 개 역량
 
+  # T25. 본문이 빈 문서를 걷어내므로 남은 수를 세면 "몇 건으로 판단했는지"가 보인다.
+  quality_gate:
+    label: 자료 품질 점검
+    counts:
+      - key: selected_job_ids
+        unit: 건 공고
+        hide_zero: true   # 0건은 강등 경고가 따로 말한다 — 여기서 0을 띄우면 두 번 말한다
+
   build_brief:
     label: 3트랙 전략 브리프 작성
 

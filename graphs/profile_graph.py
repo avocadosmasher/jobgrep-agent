@@ -1,9 +1,10 @@
 """프로필 그래프(UC-1) 조립 — 이력서 한 장에서 `ProfileJSON`까지.
 
 ```
-START → parse_resume → ocr_review(H4) → extract → level_survey(H2) → build_profile → END
+START → parse_resume → ocr_review(H4) → extract → level_survey(H2) → build_profile
                             ↑ interrupt() H4 (T22b)      ↑ interrupt() H2 (T23)
-                              못 읽었을 때만 멈춘다
+                              못 읽었을 때만 멈춘다                    → profile_gate → END
+                                                                        ↑ 커버리지 게이트 (T25)
 ```
 
 **왜 분석 그래프와 분리하나** (설계도 §10-3, 카드 맥락):
@@ -49,6 +50,7 @@ from contracts.enums import SourceType
 from contracts.models import ProfileJSON, SourceDocument
 from contracts.state import GraphState
 from nodes.analysis_nodes import extract
+from nodes.gates import profile_gate
 from nodes.level_survey import level_survey
 from nodes.ocr_review import ocr_review
 from tools.parse_resume import parse_resume
@@ -214,6 +216,9 @@ PROFILE_NODE_SEQUENCE: list[tuple[str, object]] = [
     ("extract", extract),  # 분석 그래프 것을 그대로 재사용 (위 모듈 설명 참조)
     ("level_survey", level_survey),
     ("build_profile", build_profile_node),
+    # T25 — 완성된 프로필의 커버리지를 재 `gate_status`에 남긴다(§12-1 UC-1 하드 요건).
+    # 화면이 "미완성"을 띄우는 근거이며, 여기서 멈추거나 되돌리지는 않는다.
+    ("profile_gate", profile_gate),
 ]
 
 PROFILE_NODE_NAMES: list[str] = [name for name, _ in PROFILE_NODE_SEQUENCE]

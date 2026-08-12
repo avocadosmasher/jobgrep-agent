@@ -40,3 +40,7 @@ nodes:
 
   build_profile:
     label: 프로필 저장
+
+  # T25. 커버리지를 재 "미완성"을 가른다 — 세어서 보여줄 산출은 없다.
+  profile_gate:
+    label: 프로필 점검
