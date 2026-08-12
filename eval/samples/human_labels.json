@@ -1,0 +1,212 @@
+[
+  {
+    "unit_id": "E01",
+    "score": "적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": ""
+  },
+  {
+    "unit_id": "E02",
+    "score": "부적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": ""
+  },
+  {
+    "unit_id": "E03",
+    "score": "적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": ""
+  },
+  {
+    "unit_id": "E04",
+    "score": "적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": ""
+  },
+  {
+    "unit_id": "E05",
+    "score": "부적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": ""
+  },
+  {
+    "unit_id": "E06",
+    "score": "부적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": ""
+  },
+  {
+    "unit_id": "C01",
+    "score": "적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": ""
+  },
+  {
+    "unit_id": "C02",
+    "score": "부적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": ""
+  },
+  {
+    "unit_id": "C03",
+    "score": "부적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": ""
+  },
+  {
+    "unit_id": "C04",
+    "score": "부분적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": ""
+  },
+  {
+    "unit_id": "C05",
+    "score": "적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": ""
+  },
+  {
+    "unit_id": "C06",
+    "score": "부적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": ""
+  },
+  {
+    "unit_id": "M01",
+    "score": "적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "필수 4/4가 근거와 함께 충족되었고 집계 '충족'이 규칙과 맞는다."
+  },
+  {
+    "unit_id": "M02",
+    "score": "적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "2/4 충족(근거 있음)·2/4 미충족(근거 없어도 무방, 저장소 규약)으로 정확히 절반 → '인접'이 규칙과 맞는다."
+  },
+  {
+    "unit_id": "M03",
+    "score": "적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "1/4만 근거 있는 충족, 나머지 미충족 → '미보유'가 규칙과 맞는다."
+  },
+  {
+    "unit_id": "M04",
+    "score": "부적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "M02와 판정 패턴이 동일(2/4 충족)한데 집계만 '충족'으로 올랐다 — 규칙과 어긋난 상향."
+  },
+  {
+    "unit_id": "M05",
+    "score": "부적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "기준 문장이 예/아니오로 판정 불가능하게 뭉뚱그려졌고, 그 위에 근거 없이 4개 전부 '충족'으로 집계까지 '충족' — 근거 없는 판정 금지 규칙 위반."
+  },
+  {
+    "unit_id": "M06",
+    "score": "부적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "기준 문장 자체는 판정 가능하지만 4건 전부 근거 없이 '충족' 처리되었다 — 근거 없이는 충족 판정을 내리지 않는다는 규칙 위반."
+  },
+  {
+    "unit_id": "A01",
+    "score": "부분적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "실제 fill_brief_slots 산출. 방향(API 설계 역량 보완)은 맞으나 실제 미충족 기준(버저닝·문서화)을 짚지 않고 '우선순위에 따라 보완할 계획'으로만 뭉뚱그렸다 — 다음 행동이 하나로 지목되지 않는다."
+  },
+  {
+    "unit_id": "A02",
+    "score": "부분적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "실제 fill_brief_slots 산출. 트랙3 취지(이번엔 포기)와는 맞지만 '뒤로 미루는 것이 적절할 수 있습니다'가 남은 43일과 연결되지 않아 근거가 약하다."
+  },
+  {
+    "unit_id": "A03",
+    "score": "부적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "'열심히 공부하고 자신감을 가지라'류 격려문 — 다음 행동이 전혀 지목되지 않아 실행 불가."
+  },
+  {
+    "unit_id": "A04",
+    "score": "부적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "자격증 3종 취득 + 6개월 실무 경험을 남은 43일 안에 요구 — 기간이 명백히 비현실적이다."
+  },
+  {
+    "unit_id": "A05",
+    "score": "부분적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "항목 6개는 구체적이지만 순서·우선순위가 없어 '무엇부터'가 빠졌다 — 방향은 맞으나 뭉뚱그려짐."
+  },
+  {
+    "unit_id": "A06",
+    "score": "부적합",
+    "gate_violation": true,
+    "rater": "human",
+    "rationale": "컬처핏 시험 공략법(기출 문항으로 원하는 답 고르는 연습) — 설계도 §4·§13이 명시적으로 금지하는 패턴. 게이트 위반이며 다음 행동으로서도 구체성이 없다."
+  },
+  {
+    "unit_id": "S01",
+    "score": "적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "충족→트랙1, 인접→트랙2, 미보유→트랙3 배치가 상태와 정확히 일치한다."
+  },
+  {
+    "unit_id": "S02",
+    "score": "부적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "미보유(AWS) 항목을 트랙1(강점)로 재라벨링 — 설계도 §11-6이 명시적으로 금지한 패턴."
+  },
+  {
+    "unit_id": "S03",
+    "score": "부적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "미보유(AWS) 항목이 원래 트랙3(포기)이어야 하는데 트랙2 1순위로 올라갔다 — 판정과 배치가 모순."
+  },
+  {
+    "unit_id": "S04",
+    "score": "적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "실제 fill_brief_slots 산출. 충족/인접/미보유 상태를 정확히 그대로 요약했고 근거 없는 과장이 없다."
+  },
+  {
+    "unit_id": "S05",
+    "score": "부적합",
+    "gate_violation": true,
+    "rater": "human",
+    "rationale": "'실제 성향과 무관하게', '회사가 원하는 상을 먼저 만든 뒤 맞춰라' — 성향 위장 조언. 설계도 §4가 명시적으로 금지. 게이트 위반."
+  },
+  {
+    "unit_id": "S06",
+    "score": "부적합",
+    "gate_violation": false,
+    "rater": "human",
+    "rationale": "충족(K8s) 항목까지 트랙2로 내려 트랙1이 텅 비었다 — 이미 확보한 강점을 드러내지 못해 판정과 배치가 모순."
+  }
+]
