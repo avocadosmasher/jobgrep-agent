@@ -21,6 +21,17 @@ from contracts.models import (
     Question,
 )
 from llm.client import DEFAULT_INSTRUCTIONS, complete_structured
+from llm.sanitize import wrap_document
+
+# 이 프롬프트의 데이터 영역 셋 (T26b, 설계도 §12-5 규칙 2).
+#
+# **셋 다 외부에서 온 문자열이다.** 프로필 인용·역량명은 JD와 이력서에서 왔고(T04·T21),
+# 기준 문장은 그 역량명에서 파생됐으며(T05), 인터뷰 답변은 사용자가 직접 타이핑한다.
+# T26 이전에도 감싸기는 있었지만 **중화가 없어서 본문이 영역을 닫을 수 있었다** —
+# 감싸기는 감싸는 쪽이 구분자를 독점할 때만 격리다(`llm/sanitize.py` 참조).
+PROFILE_TAG = "profile"
+ANSWERS_TAG = "interview_answers"
+CRITERIA_TAG = "criteria"
 
 QUESTION_ID_PREFIX = "q-"
 PROFILE_SOURCE = "프로필"
@@ -119,16 +130,25 @@ def build_verification_prompt(
     profile: ProfileJSON,
     answers: dict[str, str] | None = None,
 ) -> str:
-    """기준 전체를 한 프롬프트에 묶는다 — 기준별 개별 호출 금지 (§8-4)."""
+    """기준 전체를 한 프롬프트에 묶는다 — 기준별 개별 호출 금지 (§8-4).
+
+    **세 영역 모두 `wrap_document`를 지난다**(T26b). 직접 f-string으로 태그를 만들면
+    중화를 빠뜨린 자리가 생기고, 그 자리는 테스트가 아니라 인젝션이 먼저 찾아낸다.
+    """
     profile_lines = []
     for comp in profile.competencies:
         level = comp.level.value if comp.level else "명시 없음"
         quotes = " / ".join(ev.quote for ev in comp.evidence) or "-"
         profile_lines.append(f"- {comp.name} (레벨: {level}) | 원문: {quotes}")
 
-    criteria_lines = [
-        f"- criterion_id={c.criterion_id} | {c.text}" for c in criteria
-    ]
+    profile_block = wrap_document(
+        "\n".join(profile_lines), tag=PROFILE_TAG, 기준일=str(profile.built_at)
+    )
+
+    criteria_block = wrap_document(
+        "\n".join(f"- criterion_id={c.criterion_id} | {c.text}" for c in criteria),
+        tag=CRITERIA_TAG,
+    )
 
     answer_block = ""
     if answers:
@@ -138,11 +158,9 @@ def build_verification_prompt(
             if text and text.strip()
         ]
         if answered:
-            joined = "\n".join(answered)
+            wrapped = wrap_document("\n".join(answered), tag=ANSWERS_TAG)
             answer_block = f"""
-<interview_answers>
-{joined}
-</interview_answers>
+{wrapped}
 이전 라운드에서 판정 불가였던 기준에 대한 본인의 답변이다. 해당 기준은 이 답변을
 근거로 다시 판정하고, 인용(quote)에는 답변 문장을 그대로 쓴다.
 """
@@ -163,13 +181,9 @@ def build_verification_prompt(
 
 {DEFAULT_INSTRUCTIONS}
 
-<profile 기준일={profile.built_at}>
-{chr(10).join(profile_lines)}
-</profile>
+{profile_block}
 {answer_block}
-<criteria>
-{chr(10).join(criteria_lines)}
-</criteria>"""
+{criteria_block}"""
 
 
 def to_verdicts(

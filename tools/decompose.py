@@ -12,9 +12,21 @@ from pydantic import BaseModel
 from contracts.enums import Importance
 from contracts.models import CompetencyRecord, Criterion
 from llm.client import DEFAULT_INSTRUCTIONS, complete_structured
+from llm.sanitize import wrap_document
 
 MIN_CRITERIA = 3
 MAX_CRITERIA = 5
+
+# 역량 목록을 담는 데이터 영역 (T26b, 설계도 §12-5 규칙 2).
+#
+# **`comp.name`은 JD 원문에서 잘라 온 문자열이다**(T04는 원문 표현 그대로 보존한다).
+# T26 착수 전 이 목록은 울타리 없이 지시부와 같은 평면에 붙었고, T26 이후에도 여기는
+# 뚫려 있었다 — 원문 대조는 **지어낸** 문자열만 거르므로 원문에 실제로 있는 지시문이
+# 역량명이 되어 여기까지 온다(`test_a_verbatim_injection_sentence_is_the_residual_risk`).
+#
+# 태그가 `competencies`가 아니라 `document`인 것은 `FENCE_TAGS`에 등록된 이름만 쓸 수
+# 있기 때문이다 — 등록되지 않은 울타리는 **그 울타리만 위조된다**(D81).
+COMPETENCY_KIND = "competencies"
 
 
 class DecomposedCompetency(BaseModel):
@@ -36,7 +48,8 @@ def build_decomposition_prompt(comps: list[CompetencyRecord]) -> str:
             f"중요도={comp.importance.value} | 요구레벨={level}\n"
             f"  역량명: {comp.name}"
         )
-    listing = "\n".join(lines)
+    # 목록 전체를 한 영역에 담는다 — 역량명이 지시부와 같은 평면에 있으면 안 된다.
+    listing = wrap_document("\n".join(lines), kind=COMPETENCY_KIND)
 
     return f"""아래 역량 목록을 각각 **예/아니오로 판정 가능한 기준** {MIN_CRITERIA}~{MAX_CRITERIA}개로 분해해라.
 
@@ -52,9 +65,7 @@ def build_decomposition_prompt(comps: list[CompetencyRecord]) -> str:
 
 {DEFAULT_INSTRUCTIONS}
 
-<competencies>
-{listing}
-</competencies>"""
+{listing}"""
 
 
 def to_criteria(

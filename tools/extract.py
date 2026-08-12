@@ -13,10 +13,13 @@ from pydantic import BaseModel
 from contracts.enums import Category, Importance, Level
 from contracts.models import CompetencyRecord, Evidence, SourceDocument
 from llm.client import DEFAULT_INSTRUCTIONS, complete_structured
+from llm.sanitize import close_tag, wrap_document
 
-# 본문 구분자 — 인젝션 격리 (설계도 §12-5 규칙 2)
-DOC_OPEN = "<document id={doc_id!r} source={source!r} company={company!r}>"
-DOC_CLOSE = "</document>"
+# 본문 구분자 — 인젝션 격리 (설계도 §12-5 규칙 2).
+#
+# **감싸는 일 자체는 `llm/sanitize.py`가 한다** (T26). 여기서 f-string으로 태그를
+# 만들면 본문 안의 `</document>` 위조를 못 막는다 — 그 구멍이 T26 착수 전의 상태였다.
+DOC_CLOSE = close_tag()
 
 
 class ExtractedCompetency(BaseModel):
@@ -72,13 +75,16 @@ def build_extraction_prompt(docs: list[SourceDocument], role: str) -> str:
     levels = "\n".join(f"  - {lv.value}" for lv in Level)
     importances = " | ".join(i.value for i in Importance)
 
-    blocks = []
-    for doc in docs:
-        head = DOC_OPEN.format(
-            doc_id=doc.doc_id, source=doc.source_type.value, company=doc.company
+    # 본문도 속성 값(회사명)도 전부 수집물이다 — 둘 다 중화를 거쳐 감싼다(T26).
+    documents = "\n\n".join(
+        wrap_document(
+            doc.raw_text,
+            id=doc.doc_id,
+            source=doc.source_type.value,
+            company=doc.company,
         )
-        blocks.append(f"{head}\n{doc.raw_text}\n{DOC_CLOSE}")
-    documents = "\n\n".join(blocks)
+        for doc in docs
+    )
 
     return f"""대상 직무: {role}
 

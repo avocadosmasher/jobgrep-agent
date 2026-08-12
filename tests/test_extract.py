@@ -18,6 +18,7 @@ from pydantic import TypeAdapter
 from contracts.models import CompetencyRecord, SourceDocument
 from llm import client as llm_client
 from llm.client import LLMConfigError, LLMResponseError, complete_structured
+from llm.sanitize import open_tag
 from tools.extract import (
     DOC_CLOSE,
     ExtractedCompetency,
@@ -153,9 +154,14 @@ def test_records_are_deterministic():
 
 
 def test_prompt_wraps_every_document_in_delimiters():
+    """헤더의 **모양**은 `llm/sanitize.py`가 정한다(T26) — 여기서 다시 적지 않는다.
+
+    T26이 감싸는 일을 그 모듈로 옮기면서 속성 표기가 `repr` 따옴표에서 큰따옴표로
+    바뀌었다. 이 카드가 거는 것은 "문서마다 열고 닫혔는가"이지 따옴표 종류가 아니다.
+    """
     prompt = build_extraction_prompt(DOCS, ROLE)
     for doc in DOCS:
-        assert f"<document id={doc.doc_id!r}" in prompt
+        assert open_tag(id=doc.doc_id, source=doc.source_type.value, company=doc.company) in prompt
         assert doc.raw_text in prompt
     assert prompt.count(DOC_CLOSE) == len(DOCS)
     assert ROLE in prompt
